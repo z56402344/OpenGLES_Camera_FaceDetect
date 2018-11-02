@@ -64,7 +64,7 @@ public class CameraV1TextureViewActivity extends Activity {
             mCameraId = Camera.CameraInfo.CAMERA_FACING_FRONT;
             DisplayMetrics dm = new DisplayMetrics();
             mCamera = new CameraV1(CameraV1TextureViewActivity.this);
-            if (!mCamera.openCamera(dm.widthPixels, dm.heightPixels, mCameraId)) {
+            if (!mCamera.openCamera(dm.widthPixels, dm.heightPixels, mCameraId,null)) {
                 return;
             }
 

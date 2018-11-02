@@ -1,6 +1,7 @@
 package com.liubing.filtertestbed.CameraV1GLSurfaceView;
 
 import android.content.Context;
+import android.hardware.Camera;
 import android.opengl.GLSurfaceView;
 
 import com.liubing.filtertestbed.CameraV1;
@@ -32,5 +33,11 @@ public class CameraV1GLSurfaceView extends GLSurfaceView {
             mRenderer = null;
             textureId = -1;
         }
+    }
+
+    public void requestRenderAndFace(Camera.Face[] faces){
+        //刷新 GLSurfaceView
+        mRenderer.setFaces(faces,getMeasuredWidth(),getMeasuredHeight());
+        requestRender();
     }
 }

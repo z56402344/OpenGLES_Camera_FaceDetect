@@ -5,6 +5,7 @@ import javax.microedition.khronos.opengles.GL10;
 
 import android.content.Context;
 import android.graphics.SurfaceTexture;
+import android.hardware.Camera;
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
@@ -16,7 +17,6 @@ import com.liubing.filtertestbed.FilterFace;
 import com.liubing.filtertestbed.TextureUtils;
 
 import java.nio.FloatBuffer;
-import java.nio.ShortBuffer;
 
 import static android.opengl.GLES20.GL_FLOAT;
 import static android.opengl.GLES20.GL_FRAMEBUFFER;
@@ -59,12 +59,7 @@ public class CameraV1Renderer implements GLSurfaceView.Renderer {
 
     private int mOESTextureId2 = -1;
     private FilterFace mFilterFace;
-    private FloatBuffer mFilterFaceBuffer;
-    private int mShaderProgram2 = -1;
-    private ShortBuffer mIndexBuffer;
-    private int aPositionLocation2 = -1;
-    private int aTextureCoordLocation2 = -1;
-    private int uTextureSamplerLocation2 = -1;
+
     public void init(CameraV1GLSurfaceView glSurfaceView, CameraV1 camera, boolean isPreviewStarted, Context context) {
         mContext = context;
         mGLSurfaceView = glSurfaceView;
@@ -83,11 +78,10 @@ public class CameraV1Renderer implements GLSurfaceView.Renderer {
         glBindFramebuffer(GL_FRAMEBUFFER, mFBOIds[0]);
         Log.i("lb6905", "onSurfaceCreated: mFBOId: " + mFBOIds[0]);
 
+        //获取纹理ID
         mOESTextureId2 = TextureUtils.loadTexture(mContext);
-        mFilterFace = new FilterFace(mOESTextureId2,mContext);
-        mFilterFaceBuffer = mFilterFace.getBuffer();
-        mShaderProgram2 = mFilterFace.getShaderProgram();
-        mIndexBuffer = mFilterFace.getIndexBuffer();
+        //创建sl着色程序
+        mFilterFace = new FilterFace(mContext);
     }
 
     @Override
@@ -158,37 +152,9 @@ public class CameraV1Renderer implements GLSurfaceView.Renderer {
         long t = t2 - t1;
         Log.i("lb6905", "onDrawFrame: time: " + t);
 
-        drawTexture2D();
-    }
-
-
-
-    private void drawTexture2D() {
-        GLES20.glUseProgram(mShaderProgram2);
-        aPositionLocation2 = glGetAttribLocation(mShaderProgram2, FilterFace.POSITION_ATTRIBUTE);
-        aTextureCoordLocation2 = glGetAttribLocation(mShaderProgram2, FilterFace.TEXTURE_COORD_ATTRIBUTE);
-        uTextureSamplerLocation2 = glGetUniformLocation(mShaderProgram2, FilterFace.TEXTURE_SAMPLER_UNIFORM);
-
-        glActiveTexture(GLES20.GL_TEXTURE1);
-        glBindTexture(GLES20.GL_TEXTURE_2D, mOESTextureId2);
-        glUniform1i(uTextureSamplerLocation2, 1);
-
-        if (mFilterFaceBuffer != null) {
-            //顶点坐标从位置0开始读取
-            mFilterFaceBuffer.position(0);
-            glEnableVertexAttribArray(aPositionLocation2);
-            glVertexAttribPointer(aPositionLocation2, 3, GL_FLOAT, false, 20, mFilterFaceBuffer);
-
-            //纹理坐标从位置2开始读取
-            mFilterFaceBuffer.position(3);
-            glEnableVertexAttribArray(aTextureCoordLocation2);
-            glVertexAttribPointer(aTextureCoordLocation2, 2, GL_FLOAT, false, 20, mFilterFaceBuffer);
+        if (mFilterFace != null){
+            mFilterFace.drawTexture2D(mOESTextureId2);
         }
-
-//        glDrawArrays(GL_TRIANGLES, 0, 6);
-//        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-        GLES20.glDrawElements(GLES20.GL_TRIANGLES, 6, GLES20.GL_UNSIGNED_SHORT, mIndexBuffer);
     }
 
     //在onDrawFrame方法中调用此方法
@@ -210,6 +176,9 @@ public class CameraV1Renderer implements GLSurfaceView.Renderer {
         mCamera.setPreviewTexture(mSurfaceTexture);
         //开启预览
         mCamera.startPreview();
+
+        //开启人脸识别监听
+        mCamera.startFaceDetection();
         return true;
     }
 
@@ -226,4 +195,11 @@ public class CameraV1Renderer implements GLSurfaceView.Renderer {
         mOESTextureId = -1;
         bIsPreviewStarted = false;
     }
+
+    public void setFaces(Camera.Face[] faces,int w,int h){
+        if (mFilterFace != null && faces != null && faces.length > 0){
+            mFilterFace.setFaces(faces[0],w,h);
+        }
+    }
+
 }

@@ -1,8 +1,11 @@
 package com.liubing.filtertestbed;
 
 import android.app.Activity;
+import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.Surface;
 
@@ -16,13 +19,16 @@ public class CameraV1 {
     private Activity mActivity;
     private int mCameraId;
     private Camera mCamera;
+    private FaceDetectionListener mFaceDetectionListener = new FaceDetectionListener();
+    private Handler mHandler;
 
     public CameraV1(Activity activity) {
         mActivity = activity;
     }
 
-    public boolean openCamera(int screenWidth, int screenHeight, int cameraId) {
+    public boolean openCamera(int screenWidth, int screenHeight, int cameraId, Handler handler) {
         try {
+            mHandler = handler;
             mCameraId = cameraId;
             mCamera = Camera.open(mCameraId);
             Camera.Parameters parameters = mCamera.getParameters();
@@ -90,6 +96,39 @@ public class CameraV1 {
         if (mCamera != null) {
             mCamera.release();
             mCamera = null;
+        }
+    }
+
+	//开启人脸识别监听
+    public void startFaceDetection(){
+        if (mCamera != null) {
+            mCamera.setFaceDetectionListener(mFaceDetectionListener);
+            mCamera.startFaceDetection();
+        }
+    }
+	
+	//人脸识别监听回调类
+    class  FaceDetectionListener implements Camera.FaceDetectionListener{
+
+        @Override
+        public void onFaceDetection(Camera.Face[] faces, Camera camera) {
+            Message m = mHandler.obtainMessage();
+            if (null == faces || faces.length == 0) {
+                m.obj = null;
+                Log.d("face", "onFaceDetection : There is no face found.");
+            } else {
+                Log.d("face", "onFaceDetection : face found.");
+                m.obj = faces;
+                for (int i = 0; i < faces.length; i++) {
+                    Camera.Face face = faces[i];
+                    if (face == null)return;
+                    Rect rect = face.rect;
+                    Log.i("face","face.score="+face.score);
+                    Log.i("face","rect.left="+rect.left+"\nrect.top="+rect.top+"\nrect.right="+rect.right+"\nrect.bottom="+rect.bottom);
+                    Log.i("face","id="+face.id+" \nface.leftEye.x="+face.leftEye.x+" \nface.leftEye.y"+face.leftEye.y+" \nface.mouth.x="+face.mouth.x+" \nface.mouth.y="+face.mouth.y);
+                }
+            }
+            m.sendToTarget();
         }
     }
 }

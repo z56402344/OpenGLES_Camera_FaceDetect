@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Matrix;
 import android.graphics.RectF;
 import android.hardware.Camera;
+import android.opengl.GLES20;
 import android.util.Log;
 
 import java.nio.ByteBuffer;
@@ -11,16 +12,24 @@ import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 
+import static android.opengl.GLES20.GL_FLOAT;
 import static android.opengl.GLES20.GL_FRAGMENT_SHADER;
 import static android.opengl.GLES20.GL_VERTEX_SHADER;
+import static android.opengl.GLES20.glActiveTexture;
 import static android.opengl.GLES20.glAttachShader;
+import static android.opengl.GLES20.glBindTexture;
 import static android.opengl.GLES20.glCompileShader;
 import static android.opengl.GLES20.glCreateProgram;
 import static android.opengl.GLES20.glCreateShader;
+import static android.opengl.GLES20.glEnableVertexAttribArray;
+import static android.opengl.GLES20.glGetAttribLocation;
 import static android.opengl.GLES20.glGetError;
+import static android.opengl.GLES20.glGetUniformLocation;
 import static android.opengl.GLES20.glLinkProgram;
 import static android.opengl.GLES20.glShaderSource;
+import static android.opengl.GLES20.glUniform1i;
 import static android.opengl.GLES20.glUseProgram;
+import static android.opengl.GLES20.glVertexAttribPointer;
 
 /**
  * 普通贴图着色程序
@@ -82,20 +91,24 @@ public class FilterFace {private static final String TAG = "FACE";
 
     private Matrix mMatrix = new Matrix();
     private Context mContext;
-    private int mOESTextureId = -1;
     private int vertexShader = -1;
     private int fragmentShader = -1;
 
     private int mShaderProgram = -1;
 
-    public FilterFace(int OESTextureId, Context context) {
+
+    private int mPositionLocation = -1;
+    private int mTextureCoordLocation = -1;
+    private int mTextureSamplerLocation = -1;
+
+    public FilterFace(Context context) {
         super();
         mContext = context;
-        mOESTextureId = OESTextureId;
         loadVertex();
         vertexShader = loadShader(GL_VERTEX_SHADER, VERTEX_SHADER);
         fragmentShader = loadShader(GL_FRAGMENT_SHADER, FRAGMENT_SHADER);
         mShaderProgram = linkProgram(vertexShader, fragmentShader);
+        loadShadingLanguageVariable();
     }
 
     private void loadVertex() {
@@ -114,6 +127,13 @@ public class FilterFace {private static final String TAG = "FACE";
                 .order(ByteOrder.nativeOrder())
                 .asFloatBuffer();
         this.mTexVertexBuffer.put(TEX_VERTEX).position(0);
+    }
+
+    //加载sl着色语句中的变量
+    public void loadShadingLanguageVariable(){
+        mPositionLocation = glGetAttribLocation(mShaderProgram, FilterFace.POSITION_ATTRIBUTE);
+        mTextureCoordLocation = glGetAttribLocation(mShaderProgram, FilterFace.TEXTURE_COORD_ATTRIBUTE);
+        mTextureSamplerLocation = glGetUniformLocation(mShaderProgram, FilterFace.TEXTURE_SAMPLER_UNIFORM);
     }
 
     //将顶点和纹理坐标数据使用FloatBuffer来存储，防止内存回收
@@ -156,10 +176,40 @@ public class FilterFace {private static final String TAG = "FACE";
         return program;
     }
 
+    //绘制纹理图形
+    public void drawTexture2D(int textureId) {
+        //使用制定sl程序
+        GLES20.glUseProgram(mShaderProgram);
+        //激活纹理
+        glActiveTexture(GLES20.GL_TEXTURE1);
+        //绑定对应纹理ID
+        glBindTexture(GLES20.GL_TEXTURE_2D, textureId);
+        glUniform1i(mTextureSamplerLocation, 1);
+
+        if (mVertexBuffer != null) {
+            //顶点坐标从位置0开始读取
+            mVertexBuffer.position(0);
+            glEnableVertexAttribArray(mPositionLocation);
+            glVertexAttribPointer(mPositionLocation, 3, GL_FLOAT, false, 20, mVertexBuffer);
+
+            //纹理坐标从位置2开始读取
+            mVertexBuffer.position(3);
+            glEnableVertexAttribArray(mTextureCoordLocation);
+            glVertexAttribPointer(mTextureCoordLocation, 2, GL_FLOAT, false, 20, mVertexBuffer);
+        }
+
+//        glDrawArrays(GL_TRIANGLES, 0, 6);
+//        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+        GLES20.glDrawElements(GLES20.GL_TRIANGLES, 6, GLES20.GL_UNSIGNED_SHORT, mIndexBuffer);
+    }
+
     private RectF mRect = new RectF();
 
-    public void setFaces(Camera.Face face){
+    public void setFaces(Camera.Face face,int w, int h){
         mFace = face;
+        mW = w;
+        mH = h;
 //        quadVertex;
         Log.i(TAG, "DrawTexture  mW=" +mW +", mH="+mH );
 
@@ -225,15 +275,4 @@ public class FilterFace {private static final String TAG = "FACE";
         matrix.postTranslate(viewWidth / 2f, viewHeight / 2f);
     }
 
-    public int getShaderProgram() {
-        return mShaderProgram;
-    }
-
-    public FloatBuffer getBuffer() {
-        return mVertexBuffer;
-    }
-
-    public ShortBuffer getIndexBuffer() {
-        return mIndexBuffer;
-    }
 }

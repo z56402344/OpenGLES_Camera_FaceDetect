@@ -7,6 +7,8 @@ import android.content.pm.PackageManager;
 import android.hardware.Camera;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.DisplayMetrics;
 import android.view.Window;
 import android.view.WindowManager;
@@ -17,6 +19,17 @@ public class CameraV1GLSurfaceViewActivity extends Activity {
     private CameraV1GLSurfaceView mGLSurfaceView;
     private int mCameraId;
     private CameraV1 mCamera;
+
+    private Handler mHandler = new Handler(new Handler.Callback() {
+        @Override
+        public boolean handleMessage(Message msg) {
+            Camera.Face[] faces = (Camera.Face[]) msg.obj;
+            if (mGLSurfaceView != null){
+                mGLSurfaceView.requestRenderAndFace(faces);
+            }
+            return false;
+        }
+    });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,11 +48,11 @@ public class CameraV1GLSurfaceViewActivity extends Activity {
 
         //实例化一个GLSurfaceView
         mGLSurfaceView = new CameraV1GLSurfaceView(this);
-        mCameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
-//        mCameraId = Camera.CameraInfo.CAMERA_FACING_FRONT;
+//        mCameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
+        mCameraId = Camera.CameraInfo.CAMERA_FACING_FRONT;
         DisplayMetrics dm = new DisplayMetrics();
         mCamera = new CameraV1(this);
-        if (!mCamera.openCamera(dm.widthPixels, dm.heightPixels, mCameraId)) {
+        if (!mCamera.openCamera(dm.widthPixels, dm.heightPixels, mCameraId,mHandler)) {
             return;
         }
         mGLSurfaceView.init(mCamera, false, CameraV1GLSurfaceViewActivity.this);
