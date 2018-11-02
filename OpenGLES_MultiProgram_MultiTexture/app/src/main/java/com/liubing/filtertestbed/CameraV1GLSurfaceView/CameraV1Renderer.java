@@ -55,13 +55,11 @@ public class CameraV1Renderer implements GLSurfaceView.Renderer {
     private int aTextureCoordLocation = -1;
     private int uTextureMatrixLocation = -1;
     private int uTextureSamplerLocation = -1;
-    private int uTextureCoordLocation = -1;
     private int[] mFBOIds = new int[1];
 
     private int mOESTextureId2 = -1;
     private FilterFace mFilterFace;
     private FloatBuffer mFilterFaceBuffer;
-    private SurfaceTexture mSurfaceTexture2;
     private int mShaderProgram2 = -1;
     private ShortBuffer mIndexBuffer;
     private int aPositionLocation2 = -1;
@@ -90,7 +88,6 @@ public class CameraV1Renderer implements GLSurfaceView.Renderer {
         mFilterFaceBuffer = mFilterFace.getBuffer();
         mShaderProgram2 = mFilterFace.getShaderProgram();
         mIndexBuffer = mFilterFace.getIndexBuffer();
-//        mFilterFaceBuffer = mDataBuffer;
     }
 
     @Override
@@ -171,17 +168,10 @@ public class CameraV1Renderer implements GLSurfaceView.Renderer {
         aPositionLocation2 = glGetAttribLocation(mShaderProgram2, FilterFace.POSITION_ATTRIBUTE);
         aTextureCoordLocation2 = glGetAttribLocation(mShaderProgram2, FilterFace.TEXTURE_COORD_ATTRIBUTE);
         uTextureSamplerLocation2 = glGetUniformLocation(mShaderProgram2, FilterFace.TEXTURE_SAMPLER_UNIFORM);
-//        uTextureCoordLocation = glGetUniformLocation(mShaderProgram, FilterEngine.TEXTURE_TEXCOORD_UNIFORM);
-//        int leftBottomUniform = glGetUniformLocation(mShaderProgram, FilterEngine.TEXTURE_LEFTBOTTOM_UNIFORM);
-//        int rightTopUniform = glGetUniformLocation(mShaderProgram, FilterEngine.TEXTURE_RIGHTTOP_UNIFORM);
-//        int textureUniform = glGetUniformLocation(mShaderProgram, FilterEngine.TEXTURE_MYTEXTURE1_UNIFORM);
 
         glActiveTexture(GLES20.GL_TEXTURE1);
         glBindTexture(GLES20.GL_TEXTURE_2D, mOESTextureId2);
         glUniform1i(uTextureSamplerLocation2, 1);
-//        GLES20.glUniform2f(leftBottomUniform, -0.15f, -0.15f);
-//        GLES20.glUniform2f(rightTopUniform, 0.30f, 0.30f);
-        //        GLES20.glUniformMatrix4fv(uTextureMatrixLocation, 1, false, transformMatrix, 0);
 
         if (mFilterFaceBuffer != null) {
             //顶点坐标从位置0开始读取

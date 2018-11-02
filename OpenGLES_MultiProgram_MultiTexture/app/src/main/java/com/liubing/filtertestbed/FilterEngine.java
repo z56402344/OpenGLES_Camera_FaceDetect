@@ -84,11 +84,6 @@ public class FilterEngine {
     public static final String TEXTURE_COORD_ATTRIBUTE = "aTextureCoordinate";
     public static final String TEXTURE_MATRIX_UNIFORM = "uTextureMatrix";
     public static final String TEXTURE_SAMPLER_UNIFORM = "myTexture0";
-    public static final String TEXTURE_TEXCOORD_UNIFORM = "a_texCoord";
-    public static final String TEXTURE_MYTEXTURE1_UNIFORM = "myTexture1";
-    public static final String TEXTURE_LEFTBOTTOM_UNIFORM = "leftBottom";
-    public static final String TEXTURE_RIGHTTOP_UNIFORM = "rightTop";
-
 
     //将顶点和纹理坐标数据使用FloatBuffer来存储，防止内存回收
     public FloatBuffer createBuffer(float[] vertexData) {
