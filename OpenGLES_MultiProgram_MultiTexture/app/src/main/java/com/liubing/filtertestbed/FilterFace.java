@@ -23,7 +23,7 @@ import static android.opengl.GLES20.glShaderSource;
 import static android.opengl.GLES20.glUseProgram;
 
 /**
- * Created by duguang on 18-10-25.
+ * 普通贴图着色程序
  */
 public class FilterFace {private static final String TAG = "FACE";
 

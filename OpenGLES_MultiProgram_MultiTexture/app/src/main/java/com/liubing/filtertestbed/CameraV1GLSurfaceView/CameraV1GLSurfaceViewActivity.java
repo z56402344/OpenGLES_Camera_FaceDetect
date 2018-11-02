@@ -1,8 +1,11 @@
 package com.liubing.filtertestbed.CameraV1GLSurfaceView;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
 import android.hardware.Camera;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.Window;
@@ -22,6 +25,13 @@ public class CameraV1GLSurfaceViewActivity extends Activity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
+        //6.0运行时摄像头权限
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[] {Manifest.permission.CAMERA}, 1);
+            }
+        }
 
         //实例化一个GLSurfaceView
         mGLSurfaceView = new CameraV1GLSurfaceView(this);

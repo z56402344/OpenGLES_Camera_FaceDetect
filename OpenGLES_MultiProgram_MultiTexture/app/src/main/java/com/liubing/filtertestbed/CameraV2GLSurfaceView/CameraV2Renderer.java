@@ -8,7 +8,7 @@ import android.util.Log;
 
 import com.liubing.filtertestbed.CameraV2;
 import com.liubing.filtertestbed.FilterEngine;
-import com.liubing.filtertestbed.Utils;
+import com.liubing.filtertestbed.TextureUtils;
 
 import java.nio.FloatBuffer;
 
@@ -65,7 +65,7 @@ public class CameraV2Renderer implements GLSurfaceView.Renderer {
 
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-        mOESTextureId = Utils.createOESTextureObject();
+        mOESTextureId = TextureUtils.createOESTextureObject();
         mFilterEngine = new FilterEngine(mOESTextureId, mContext);
         mDataBuffer = mFilterEngine.getBuffer();
         mShaderProgram = mFilterEngine.getShaderProgram();

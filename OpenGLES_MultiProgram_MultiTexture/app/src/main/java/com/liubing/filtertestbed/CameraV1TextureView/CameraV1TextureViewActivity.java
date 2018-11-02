@@ -1,9 +1,12 @@
 package com.liubing.filtertestbed.CameraV1TextureView;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.DisplayMetrics;
@@ -12,7 +15,7 @@ import android.view.Window;
 import android.view.WindowManager;
 
 import com.liubing.filtertestbed.CameraV1;
-import com.liubing.filtertestbed.Utils;
+import com.liubing.filtertestbed.TextureUtils;
 
 /**
  * Created by lb6905 on 2017/6/28.
@@ -36,6 +39,12 @@ public class CameraV1TextureViewActivity extends Activity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
+        //6.0运行时摄像头权限
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[] {Manifest.permission.CAMERA}, 1);
+            }
+        }
         mTextureView = new TextureView(this);
         mTextureView.setSurfaceTextureListener(mTextureListener);
         //设置隐藏虚拟按键
@@ -47,7 +56,7 @@ public class CameraV1TextureViewActivity extends Activity {
     public TextureView.SurfaceTextureListener mTextureListener = new TextureView.SurfaceTextureListener() {
         @Override
         public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
-            mOESTextureId = Utils.createOESTextureObject();
+            mOESTextureId = TextureUtils.createOESTextureObject();
             mRenderer.init(mTextureView, mOESTextureId, CameraV1TextureViewActivity.this);
             mOESSurfaceTexture = mRenderer.initOESTexture();
 

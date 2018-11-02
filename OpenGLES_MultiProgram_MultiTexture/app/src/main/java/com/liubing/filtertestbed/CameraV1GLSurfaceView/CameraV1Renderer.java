@@ -13,7 +13,7 @@ import android.util.Log;
 import com.liubing.filtertestbed.CameraV1;
 import com.liubing.filtertestbed.FilterEngine;
 import com.liubing.filtertestbed.FilterFace;
-import com.liubing.filtertestbed.Utils;
+import com.liubing.filtertestbed.TextureUtils;
 
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
@@ -74,7 +74,7 @@ public class CameraV1Renderer implements GLSurfaceView.Renderer {
 
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-        mOESTextureId = Utils.createOESTextureObject();
+        mOESTextureId = TextureUtils.createOESTextureObject();
         mFilterEngine = new FilterEngine(mOESTextureId, mContext);
         mDataBuffer = mFilterEngine.getBuffer();
 //        获取着色器程序ID
@@ -83,7 +83,7 @@ public class CameraV1Renderer implements GLSurfaceView.Renderer {
         glBindFramebuffer(GL_FRAMEBUFFER, mFBOIds[0]);
         Log.i("lb6905", "onSurfaceCreated: mFBOId: " + mFBOIds[0]);
 
-        mOESTextureId2 = Utils.loadTexture(mContext);
+        mOESTextureId2 = TextureUtils.loadTexture(mContext);
         mFilterFace = new FilterFace(mOESTextureId2,mContext);
         mFilterFaceBuffer = mFilterFace.getBuffer();
         mShaderProgram2 = mFilterFace.getShaderProgram();

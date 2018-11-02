@@ -31,9 +31,8 @@ import static android.opengl.GLES20.glUseProgram;
 import static android.opengl.GLES20.glVertexAttribPointer;
 
 /**
- * Created by lb6905 on 2017/6/12.
+ * 摄像头着色程序
  */
-
 public class FilterEngine {
 
     private static FilterEngine filterEngine = null;
@@ -55,8 +54,8 @@ public class FilterEngine {
         mContext = context;
         mOESTextureId = OESTextureId;
         mBuffer = createBuffer(vertexData);
-        vertexShader = loadShader(GL_VERTEX_SHADER, Utils.readShaderFromResource(mContext, R.raw.base_vertex_shader));
-        fragmentShader = loadShader(GL_FRAGMENT_SHADER, Utils.readShaderFromResource(mContext, R.raw.base_fragment_shader));
+        vertexShader = loadShader(GL_VERTEX_SHADER, TextureUtils.readShaderFromResource(mContext, R.raw.base_vertex_shader));
+        fragmentShader = loadShader(GL_FRAGMENT_SHADER, TextureUtils.readShaderFromResource(mContext, R.raw.base_fragment_shader));
         mShaderProgram = linkProgram(vertexShader, fragmentShader);
     }
 

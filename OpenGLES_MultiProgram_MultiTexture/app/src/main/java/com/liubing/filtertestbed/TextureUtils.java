@@ -15,10 +15,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 /**
- * Created by lb6905 on 2017/6/28.
+ * 生成纹理的工具类
  */
-
-public class Utils {
+public class TextureUtils {
 
     public static int createOESTextureObject() {
         int[] tex = new int[1];
